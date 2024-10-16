@@ -36,3 +36,5 @@ Example:
 ```
 
 To change application icon, replace files in `app/src/main/res/mipmap-*` with your icon.
+
+lets go!!
