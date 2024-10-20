@@ -29,3 +29,9 @@ jobs:
       with:
         name: apk
         path: app/build/outputs/apk/release/*.apk
+
+# Add an `on` trigger for workflow execution
+on:
+  push:
+    branches:
+      - main
