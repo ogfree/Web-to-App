@@ -4,16 +4,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    
+    # Set up JDK 11
     - name: Set up JDK 11
       uses: actions/setup-java@v3
       with:
         java-version: '11'
         distribution: 'temurin'
         cache: gradle
+
+    # Install Android SDK
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v2
+      with:
+        api-level: 30           # Specify the API level
+        build-tools: 30.0.3      # Specify the build tools version
+        ndk: '23.1.7779620'      # Optional, if your project needs the NDK
+
+    # Grant execute permission for gradlew
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+
+    # Build APK
     - name: Assemble 'release' APK with Gradle
       run: ./gradlew assembleRelease
+
+    # Sign the APK
     - name: Sign APK
       id: sign_apk
       uses: r0adkll/sign-android-release@v1
@@ -23,9 +39,10 @@ jobs:
         alias: ${{ secrets.KEY_ALIAS }}
         keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
         keyPassword: ${{ secrets.KEY_PASSWORD }}
-    - run: echo "Build status report=${{ job.status }}."
+
+    # Upload the signed APK
     - name: Upload APK
-      uses: actions/upload-artifact@v3  # Updated to v3
+      uses: actions/upload-artifact@v3
       with:
         name: apk
         path: app/build/outputs/apk/release/*.apk
