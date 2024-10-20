@@ -1,51 +1,31 @@
-name: Build Android APK
-
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
-
 jobs:
   build:
+    name: Generate APK
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'temurin'
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Build the APK
-        run: ./gradlew assembleRelease
-
-      - name: Restore keystore
-        run: |
-          echo "${{ secrets.KEYSTORE }}" | base64 --decode > my-release-key.keystore
-
-      - name: Sign APK with apksigner
-        run: |
-          $ANDROID_HOME/build-tools/30.0.3/apksigner sign --ks my-release-key.keystore \
-          --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
-          --key-pass pass:${{ secrets.KEY_PASSWORD }} \
-          --out dgs-shop-app-release-v05.apk \
-          app/build/outputs/apk/release/app-release-unsigned.apk
-
-      - name: Verify APK Signature
-        run: |
-          $ANDROID_HOME/build-tools/30.0.3/apksigner verify dgs-shop-app-release-v05.apk
-
-      - name: Upload APK as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: android-apk
-          path: dgs-shop-app-release-v05.apk
+    - uses: actions/checkout@v3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: gradle
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Assemble 'release' APK with Gradle
+      run: ./gradlew assembleRelease
+    - name: Sign APK
+      id: sign_apk
+      uses: r0adkll/sign-android-release@v1
+      with:
+        releaseDirectory: app/build/outputs/apk/release
+        signingKeyBase64: ${{ secrets.KEYSTORE }}
+        alias: ${{ secrets.KEY_ALIAS }}
+        keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
+        keyPassword: ${{ secrets.KEY_PASSWORD}}
+    - run: echo "Build status report=${{ job.status }}."
+    - name: Upload APK
+      uses: actions/upload-artifact@v1
+      with:
+        name: apk
+        path: app/build/outputs/apk/release/*.apk
