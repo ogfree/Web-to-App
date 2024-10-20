@@ -25,7 +25,7 @@ jobs:
         keyPassword: ${{ secrets.KEY_PASSWORD }}
     - run: echo "Build status report=${{ job.status }}."
     - name: Upload APK
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3  # Updated to v3
       with:
         name: apk
         path: app/build/outputs/apk/release/*.apk
@@ -35,4 +35,4 @@ on:
   push:
     branches:
       - main
-      - master
+      - master  # Added master branch
