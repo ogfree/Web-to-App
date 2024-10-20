@@ -22,7 +22,7 @@ jobs:
         signingKeyBase64: ${{ secrets.KEYSTORE }}
         alias: ${{ secrets.KEY_ALIAS }}
         keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-        keyPassword: ${{ secrets.KEY_PASSWORD}}
+        keyPassword: ${{ secrets.KEY_PASSWORD }}
     - run: echo "Build status report=${{ job.status }}."
     - name: Upload APK
       uses: actions/upload-artifact@v1
